@@ -21,7 +21,11 @@ async function main() {
 	try {
 		await safeUsers.insertOne({ name: "Marko", age: undefined });
 
-		await safeUsers.insertOne({ name: null, age: undefined });
+		await safeUsers.updateOne({}, { $set: { name: "Marko" } });
+		await safeUsers.updateMany({}, { $set: { name: "" } });
+		await safeUsers.insertOne({ name: "Marko", age: undefined });
+		// await safeUsers.deleteOne({ name: 1234 });
+		// await safeUsers.findOne({ age: "marko", name: 123 });
 	} catch (err) {
 		console.log(err);
 	} finally {

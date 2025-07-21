@@ -1,37 +1,62 @@
-import { Document, Collection, InsertManyResult, InsertOneResult, UpdateOneModel } from "mongodb";
-import { Schema, TypeOf, ZodObject, ZodRawShape, ZodSchema } from "zod";
-import { singleSentenceError } from "./util/helper";
-import z from "zod";
+import {
+	Collection,
+	InsertOneOptions,
+	UpdateOptions,
+	OptionalUnlessRequiredId,
+	Filter,
+	UpdateFilter,
+	FindOptions
+} from "mongodb";
+import { ZodObject } from "zod";
+import type { Schema, TypeOf } from "zod";
 
-export function createSafeCollection<Shape extends ZodObject<any>>(
-	collection: Collection<TypeOf<Shape>>,
-	schema: Shape
+type StrictFilter<T> = {
+	[P in keyof T]?: T[P] extends object ? StrictFilter<T[P]> : T[P];
+};
+
+export function createSafeCollection<TSchema extends ZodObject<any>>(
+	collection: Collection<TypeOf<TSchema>>,
+	schema: TSchema
 ) {
 	return {
-		async insertOne(doc: TypeOf<Shape>) {
-			const result = schema.safeParse(doc);
-			if (!result.success) {
-				throw new Error("Validation failed");
-			}
-			const validatedDoc = result.data as TypeOf<Schema>;
-			return await collection.insertOne(validatedDoc);
+		insertOne(doc: OptionalUnlessRequiredId<TypeOf<TSchema>>, options?: InsertOneOptions) {
+			return collection.insertOne(doc, options);
 		},
 
-		async insertMany(doc: TypeOf<Shape>) {
-			const result = z.array(schema).safeParse(doc);
-			if (!result.success) {
-				throw new Error(singleSentenceError(result.error.issues));
-			}
+		insertMany(docs: OptionalUnlessRequiredId<TypeOf<TSchema>>[]) {
+			return collection.insertMany(docs);
+		},
+
+		updateOne(
+			filter: StrictFilter<TypeOf<TSchema>>,
+			update: UpdateFilter<TypeOf<TSchema>>,
+			options?: UpdateOptions
+		) {
+			return collection.updateOne(filter, update, options);
+		},
+
+		updateMany(
+			filter: StrictFilter<TypeOf<TSchema>>,
+			update: UpdateFilter<TypeOf<TSchema>>,
+			options?: UpdateOptions
+		) {
+			return collection.updateMany(filter, update, options);
+		},
+
+		findOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			return collection.findOne(filter, options);
+		},
+
+		find(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			return collection.find(filter, options);
+		},
+
+		deleteOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			return collection.deleteOne(filter, options);
+		},
+
+		deleteMany(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			return collection.deleteMany(filter, options);
 		}
-
-        async 
-
-		// 	const validatedDocs = result.data;
-		// 	return await collection.insertMany(validatedDocs);
-		// }
-
-		// async updateOne(filter: Document, update: unknown): Promise<boolean> {
-		//     const result = schema.par
-		// }
 	};
 }
