@@ -5,7 +5,11 @@ import {
 	OptionalUnlessRequiredId,
 	Filter,
 	UpdateFilter,
-	FindOptions
+	FindOptions,
+	FindOneAndReplaceOptions,
+	ReplaceOptions,
+	FindOneAndUpdateOptions,
+	AggregateOptions
 } from "mongodb";
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
@@ -35,6 +39,16 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			return collection.updateOne(filter, update, options);
 		},
 
+		findOneAndUpdate(
+			filter: StrictFilter<TypeOf<TSchema>>,
+			update: UpdateFilter<TypeOf<TSchema>>,
+			options?: FindOneAndUpdateOptions
+		) {
+			return options
+				? collection.findOneAndUpdate(filter, update, options)
+				: collection.findOneAndUpdate(filter, update);
+		},
+
 		updateMany(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			update: UpdateFilter<TypeOf<TSchema>>,
@@ -57,6 +71,31 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 
 		deleteMany(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
 			return collection.deleteMany(filter, options);
+		},
+
+		replaceOne(
+			filter: StrictFilter<TypeOf<TSchema>>,
+			newDocument: TypeOf<TSchema>,
+			options?: ReplaceOptions
+		) {
+			return collection.replaceOne(filter, newDocument, options);
+		},
+
+		findOneAndReplace(
+			filter: StrictFilter<TypeOf<TSchema>>,
+			newDocument: TypeOf<TSchema>,
+			options?: FindOneAndReplaceOptions
+		) {
+			return options
+				? collection.findOneAndReplace(filter, newDocument, options)
+				: collection.findOneAndReplace(filter, newDocument);
+		},
+
+		aggregate<TResult extends Document = TypeOf<TSchema> & Document>(
+			pipeline: object[],
+			options?: AggregateOptions
+		) {
+			return collection.aggregate<TResult>(pipeline, options);
 		}
 	};
 }
