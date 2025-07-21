@@ -1,0 +1,99 @@
+{
+	"editor.fontFamily": "Fira Code",
+	"editor.fontWeight": "400",
+	"editor.fontLigatures": true,
+	"terminal.integrated.fontFamily": "'FiraCode Nerd Font Mono'",
+	"workbench.startupEditor": "newUntitledFile",
+	"editor.formatOnSave": true,
+	"editor.detectIndentation": false,
+	"html.format.wrapLineLength": 0,
+	"editor.wordWrapColumn": 100,
+	"debug.console.fontSize": 16,
+	"terminal.integrated.fontSize": 15,
+	"javascript.updateImportsOnFileMove.enabled": "always",
+	"sync.gist": "ad0ad1ba8d92ec03378593c82d499eaa",
+	"javascript.preferences.quoteStyle": "single",
+	"liveSassCompile.settings.formats": [
+		{
+			"format": "expanded",
+			"extensionName": ".css",
+			"savePath": "/assets/css"
+		}
+	],
+	"liveSassCompile.settings.generateMap": false,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"prettier.useTabs": true,
+	"prettier.tabWidth": 4,
+	"prettier.arrowParens": "avoid",
+	"prettier.proseWrap": "never",
+	"prettier.trailingComma": "none",
+	"prettier.printWidth": 100,
+	"prettier.jsxBracketSameLine": true,
+	"prettier.singleQuote": false,
+	"prettier.jsxSingleQuote": true,
+	"prettier.quoteProps": "preserve",
+	"json.schemas": [],
+	"python.condaPath": "C:\\Users\\WIN 10\\anaconda3\\envs\\tensor\\pythonw.exe",
+	"python.defaultInterpreterPath": "C:\\Users\\WIN 10\\anaconda3\\envs\\tensor\\pythonw.exe",
+	"[json]": {
+		"editor.quickSuggestions": {
+			"strings": true
+		},
+		"editor.suggest.insertMode": "replace",
+		"gitlens.codeLens.scopes": ["document"]
+	},
+	"terminal.integrated.shellArgs.windows": ["-ExecutionPolicy", "Bypass"],
+	"editor.fontSize": 15,
+	"workbench.editorAssociations": {
+		".ipynb": "jupyter.notebook.ipynb"
+	},
+	"terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
+	"workbench.preferredDarkColorTheme": "Night Wolf (dark gray)",
+	"workbench.iconTheme": "material-icon-theme",
+	"typescript.updateImportsOnFileMove.enabled": "always",
+	"editor.autoClosingBrackets": "always",
+	"[typescript]": { "editor.autoClosingBrackets": "always" },
+	"[javascript]": {
+		"editor.autoClosingBrackets": "languageDefined"
+	},
+	"window.title": "${rootName}",
+	"security.workspace.trust.untrustedFiles": "open",
+	"github.copilot.enable": {
+		"": true,
+		"yaml": true,
+		"plaintext": false,
+		"markdown": false,
+		"javascript": true
+	},
+	"editor.inlineSuggest.enabled": true,
+	// "editor.codeActionsOnSave": {
+	// 	"source.organizeImports": true
+	// },
+	"workbench.colorTheme": "Bearded Theme Arc EolStorm",
+	"githubPullRequests.pullBranch": "never",
+	"[python]": {
+		"editor.formatOnType": true
+	},
+	"workbench.editor.wrapTabs": true,
+	"githubPullRequests.terminalLinksHandler": "github",
+	"[terraform]": {
+		"editor.defaultFormatter": "hashicorp.terraform"
+	},
+	"cSpell.userWords": ["favorited", "Papr", "signups", "unfollow"],
+	"editor.minimap.enabled": false,
+	"redhat.telemetry.enabled": false,
+	"prisma.showPrismaDataPlatformNotification": false,
+	"github.copilot.editor.enableAutoCompletions": true,
+	"[prisma]": {
+		"editor.defaultFormatter": "Prisma.prisma"
+	}
+	// "workbench.colorCustomizations": {
+	// 	"tab.activeBackground": "#242A37",
+	// 	"tab.inactiveBackground": "#242A37",
+	// 	"tab.border": "#242A37",
+	// 	"activityBar.background": "#242A37",
+	// 	"activityBar.border": "#242A37",
+	// 	"sideBar.border": "#242A37",
+	// 	"sideBar.background": "#242A37"
+	// }
+}
