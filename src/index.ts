@@ -9,7 +9,10 @@ import {
 	FindOneAndReplaceOptions,
 	ReplaceOptions,
 	FindOneAndUpdateOptions,
-	AggregateOptions
+	AggregateOptions,
+	FindOneAndDeleteOptions,
+	CountDocumentsOptions,
+	EstimatedDocumentCountOptions
 } from "mongodb";
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
@@ -73,6 +76,12 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			return collection.deleteMany(filter, options);
 		},
 
+		findOneAndDelete(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOneAndDeleteOptions) {
+			return options
+				? collection.findOneAndDelete(filter, options)
+				: collection.findOneAndDelete(filter);
+		},
+
 		replaceOne(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			newDocument: TypeOf<TSchema>,
@@ -96,6 +105,21 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			options?: AggregateOptions
 		) {
 			return collection.aggregate<TResult>(pipeline, options);
+		},
+
+		countDocuments(filter?: StrictFilter<TypeOf<TSchema>>, options?: CountDocumentsOptions) {
+			return collection.countDocuments(filter, options);
+		},
+
+		estimatedDocumentCount(options?: EstimatedDocumentCountOptions) {
+			return collection.estimatedDocumentCount(options);
+		},
+
+		distinct<Key extends keyof TypeOf<TSchema>>(
+			key: Key,
+			filter?: StrictFilter<TypeOf<TSchema>>
+		) {
+			return filter ? collection.distinct(key, filter) : collection.distinct(key);
 		}
 	};
 }
