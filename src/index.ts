@@ -26,14 +26,23 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 	schema: TSchema
 ) {
 	return {
+		/**
+		 * Inserts a single document into the collection.
+		 */
 		insertOne(doc: OptionalUnlessRequiredId<TypeOf<TSchema>>, options?: InsertOneOptions) {
 			return collection.insertOne(doc, options);
 		},
 
+		/**
+		 * Inserts multiple documents into the collection.
+		 */
 		insertMany(docs: OptionalUnlessRequiredId<TypeOf<TSchema>>[]) {
 			return collection.insertMany(docs);
 		},
 
+		/**
+		 * Updates a single document matching the filter.
+		 */
 		updateOne(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			update: UpdateFilter<TypeOf<TSchema>>,
@@ -42,6 +51,9 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			return collection.updateOne(filter, update, options);
 		},
 
+		/**
+		 * Updates a single document matching the filter and returns it (before or after update).
+		 */
 		findOneAndUpdate(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			update: UpdateFilter<TypeOf<TSchema>>,
@@ -52,6 +64,9 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 				: collection.findOneAndUpdate(filter, update);
 		},
 
+		/**
+		 * Updates multiple documents matching the filter.
+		 */
 		updateMany(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			update: UpdateFilter<TypeOf<TSchema>>,
@@ -60,28 +75,46 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			return collection.updateMany(filter, update, options);
 		},
 
+		/**
+		 * Finds a single document matching the filter.
+		 */
 		findOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
 			return collection.findOne(filter, options);
 		},
 
+		/**
+		 * Finds all documents matching the filter.
+		 */
 		find(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
 			return collection.find(filter, options);
 		},
 
+		/**
+		 * Deletes a single document matching the filter.
+		 */
 		deleteOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
 			return collection.deleteOne(filter, options);
 		},
 
+		/**
+		 * Deletes multiple documents matching the filter.
+		 */
 		deleteMany(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
 			return collection.deleteMany(filter, options);
 		},
 
+		/**
+		 * Deletes a single document matching the filter and returns it.
+		 */
 		findOneAndDelete(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOneAndDeleteOptions) {
 			return options
 				? collection.findOneAndDelete(filter, options)
 				: collection.findOneAndDelete(filter);
 		},
 
+		/**
+		 * Replaces a single document matching the filter with a new document.
+		 */
 		replaceOne(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			newDocument: TypeOf<TSchema>,
@@ -90,6 +123,9 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			return collection.replaceOne(filter, newDocument, options);
 		},
 
+		/**
+		 * Finds a single document matching the filter, replaces it with a new document, and returns it.
+		 */
 		findOneAndReplace(
 			filter: StrictFilter<TypeOf<TSchema>>,
 			newDocument: TypeOf<TSchema>,
@@ -100,6 +136,10 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 				: collection.findOneAndReplace(filter, newDocument);
 		},
 
+		/**
+		 * Runs an aggregation pipeline on the collection.
+		 * @template TResult The expected result type of the aggregation.
+		 */
 		aggregate<TResult extends Document = TypeOf<TSchema> & Document>(
 			pipeline: object[],
 			options?: AggregateOptions
@@ -107,19 +147,30 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			return collection.aggregate<TResult>(pipeline, options);
 		},
 
+		/**
+		 * Counts the number of documents matching the filter.
+		 */
 		countDocuments(filter?: StrictFilter<TypeOf<TSchema>>, options?: CountDocumentsOptions) {
 			return collection.countDocuments(filter, options);
 		},
 
+		/**
+		 * Returns the estimated number of documents in the collection.
+		 */
 		estimatedDocumentCount(options?: EstimatedDocumentCountOptions) {
 			return collection.estimatedDocumentCount(options);
 		},
 
+		/**
+		 * Returns an array of distinct values for the given field across a single collection.
+		 */
 		distinct<Key extends keyof TypeOf<TSchema>>(
 			key: Key,
 			filter?: StrictFilter<TypeOf<TSchema>>
 		) {
-			return filter ? collection.distinct(key, filter) : collection.distinct(key);
+			return filter
+				? collection.distinct(key as string, filter)
+				: collection.distinct(key as string);
 		}
 	};
 }

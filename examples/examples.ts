@@ -19,6 +19,8 @@ async function main() {
 	const safeUsers = createSafeCollection(users, userSchema);
 
 	try {
+		await safeUsers.findOne({});
+		await safeUsers.aggregate([]);
 		await safeUsers.insertOne({ name: "Marko", age: undefined });
 
 		await safeUsers.updateOne({}, { $set: { name: "Marko" } });
