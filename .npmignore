@@ -1,0 +1,12 @@
+tests/
+__tests__/
+*.test.ts
+*.spec.ts
+jest.config.js
+tsconfig.json
+README.old.md
+.vscode/
+*.log
+coverage/
+*.tgz
+src/

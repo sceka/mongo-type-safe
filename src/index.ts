@@ -16,6 +16,7 @@ import {
 } from "mongodb";
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
+import { validateOrThrow } from "./util/validate";
 
 type StrictFilter<T> = {
 	[P in keyof T]?: T[P] extends object ? StrictFilter<T[P]> : T[P];
@@ -30,6 +31,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Inserts a single document into the collection.
 		 */
 		insertOne(doc: OptionalUnlessRequiredId<TypeOf<TSchema>>, options?: InsertOneOptions) {
+			validateOrThrow(schema, doc);
 			return collection.insertOne(doc, options);
 		},
 
@@ -37,6 +39,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Inserts multiple documents into the collection.
 		 */
 		insertMany(docs: OptionalUnlessRequiredId<TypeOf<TSchema>>[]) {
+			docs.forEach(doc => validateOrThrow(schema, doc));
 			return collection.insertMany(docs);
 		},
 
@@ -120,6 +123,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			newDocument: TypeOf<TSchema>,
 			options?: ReplaceOptions
 		) {
+			validateOrThrow(schema, newDocument);
 			return collection.replaceOne(filter, newDocument, options);
 		},
 
@@ -131,6 +135,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			newDocument: TypeOf<TSchema>,
 			options?: FindOneAndReplaceOptions
 		) {
+			validateOrThrow(schema, newDocument);
 			return options
 				? collection.findOneAndReplace(filter, newDocument, options)
 				: collection.findOneAndReplace(filter, newDocument);
