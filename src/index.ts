@@ -184,10 +184,13 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			key: Key,
 			filter?: StrictFilter<TypeOf<TSchema>>
 		) {
+			if (!(key in schema.shape)) {
+				throw new Error(`Invalid field: ${String(key)}`);
+			}
+
+			if (filter) validateFilter(filter, schema);
 			return filter
-				? () => {
-						collection.distinct(key as string, filter), validateFilter(filter, schema);
-				  }
+				? collection.distinct(key as string, filter)
 				: collection.distinct(key as string);
 		}
 	};

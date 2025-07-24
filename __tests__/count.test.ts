@@ -41,6 +41,8 @@ describe("Count operations", () => {
 	});
 
 	test("countDocuments rejects invalid filter", async () => {
+		expect.assertions(2);
+
 		try {
 			await users.countDocuments({ age: "invalid" } as any);
 		} catch (err: any) {
