@@ -16,7 +16,7 @@ import {
 } from "mongodb";
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
-import { validateOrThrow } from "./util/validate";
+import { validateFilter, validateOrThrow } from "./util/validate";
 
 type StrictFilter<T> = {
 	[P in keyof T]?: T[P] extends object ? StrictFilter<T[P]> : T[P];
@@ -51,6 +51,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			update: UpdateFilter<TypeOf<TSchema>>,
 			options?: UpdateOptions
 		) {
+			validateFilter(filter, schema);
 			return collection.updateOne(filter, update, options);
 		},
 
@@ -62,6 +63,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			update: UpdateFilter<TypeOf<TSchema>>,
 			options?: FindOneAndUpdateOptions
 		) {
+			validateFilter(filter, schema);
 			return options
 				? collection.findOneAndUpdate(filter, update, options)
 				: collection.findOneAndUpdate(filter, update);
@@ -75,6 +77,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			update: UpdateFilter<TypeOf<TSchema>>,
 			options?: UpdateOptions
 		) {
+			validateFilter(filter, schema);
 			return collection.updateMany(filter, update, options);
 		},
 
@@ -82,6 +85,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Finds a single document matching the filter.
 		 */
 		findOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			validateFilter(filter, schema);
 			return collection.findOne(filter, options);
 		},
 
@@ -89,6 +93,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Finds all documents matching the filter.
 		 */
 		find(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			validateFilter(filter, schema);
 			return collection.find(filter, options);
 		},
 
@@ -96,6 +101,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Deletes a single document matching the filter.
 		 */
 		deleteOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			validateFilter(filter, schema);
 			return collection.deleteOne(filter, options);
 		},
 
@@ -103,6 +109,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Deletes multiple documents matching the filter.
 		 */
 		deleteMany(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+			validateFilter(filter, schema);
 			return collection.deleteMany(filter, options);
 		},
 
@@ -110,6 +117,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Deletes a single document matching the filter and returns it.
 		 */
 		findOneAndDelete(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOneAndDeleteOptions) {
+			validateFilter(filter, schema);
 			return options
 				? collection.findOneAndDelete(filter, options)
 				: collection.findOneAndDelete(filter);
@@ -123,6 +131,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			newDocument: TypeOf<TSchema>,
 			options?: ReplaceOptions
 		) {
+			validateFilter(filter, schema);
 			validateOrThrow(schema, newDocument);
 			return collection.replaceOne(filter, newDocument, options);
 		},
@@ -135,6 +144,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			newDocument: TypeOf<TSchema>,
 			options?: FindOneAndReplaceOptions
 		) {
+			validateFilter(filter, schema);
 			validateOrThrow(schema, newDocument);
 			return options
 				? collection.findOneAndReplace(filter, newDocument, options)
@@ -156,6 +166,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Counts the number of documents matching the filter.
 		 */
 		countDocuments(filter?: StrictFilter<TypeOf<TSchema>>, options?: CountDocumentsOptions) {
+			if (filter) validateFilter(filter, schema);
 			return collection.countDocuments(filter, options);
 		},
 
@@ -174,7 +185,9 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			filter?: StrictFilter<TypeOf<TSchema>>
 		) {
 			return filter
-				? collection.distinct(key as string, filter)
+				? () => {
+						collection.distinct(key as string, filter), validateFilter(filter, schema);
+				  }
 				: collection.distinct(key as string);
 		}
 	};

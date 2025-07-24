@@ -1,12 +1,18 @@
-tests/
+# TypeScript source files
+src/
 __tests__/
+
+# Build configs
+tsconfig.json
+jest.config.js
+
+# Tests
 *.test.ts
 *.spec.ts
-jest.config.js
-tsconfig.json
-README.old.md
-.vscode/
+
+# Misc
 *.log
-coverage/
-*.tgz
-src/
+node_modules/
+dist/**/*.map
+.npmignore
+.gitignore
