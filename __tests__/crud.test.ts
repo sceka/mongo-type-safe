@@ -5,7 +5,7 @@ import { ZodError } from "zod/v4";
 
 const userSchema = z.object({
 	name: z.string(),
-	age: z.number()
+	age: z.number().optional()
 });
 
 type User = z.infer<typeof userSchema>;
