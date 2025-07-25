@@ -8,9 +8,9 @@
 		"build": "tsc"
 	},
 	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"description": "",
+	"author": "Marko Scekic",
+	"license": "MIT",
+	"description": "Type-safe wrapper around MongoDB collections using Zod validation.",
 	"dependencies": {
 		"mongodb": "^6.17.0",
 		"zod": "^3.25.75"
