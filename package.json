@@ -5,8 +5,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "jest",
-		"build": "tsc",
-		"start": "ts-node examples/examples.ts"
+		"build": "tsc"
 	},
 	"keywords": [],
 	"author": "",
