@@ -8,7 +8,7 @@ A type-safe MongoDB wrapper for Node.js using Zod schemas and TypeScript. Get co
 
 -   **Type-safe CRUD**: Compile-time type checking for all MongoDB operations
 -   **Zod integration**: Use your Zod schemas as the single source of truth
--   **No runtime validation**: Pure TypeScript safety, no extra checks in production
+-   **With runtime validation**: Enforces schema correctness at both compile-time and runtime using Zod.
 -   **Familiar API**: Mirrors the official MongoDB Node.js driver
 
 ---

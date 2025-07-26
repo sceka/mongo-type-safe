@@ -1,19 +1,35 @@
 {
 	"name": "mongo-type-safe",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "jest",
 		"build": "tsc"
 	},
-	"keywords": [],
+	"keywords": [
+		"mongodb",
+		"typescript",
+		"zod",
+		"schema",
+		"safe",
+		"validation",
+		"runtime",
+		"type-safe"
+	],
 	"author": "Marko Scekic",
 	"license": "MIT",
-	"description": "Type-safe wrapper around MongoDB collections using Zod validation.",
+	"description": "Type-safe MongoDB wrapper with Zod validation at runtime and compile-time.",
 	"dependencies": {
 		"mongodb": "^6.17.0",
 		"zod": "^3.25.75"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sceka/mongo-type-safe"
+	},
+	"bugs": {
+		"url": "https://github.com/sceka/mongo-type-safe/issues"
 	},
 	"devDependencies": {
 		"@types/jest": "^30.0.0",
