@@ -1,6 +1,7 @@
 # TypeScript source files
 src/
 __tests__/
+example.ts
 
 # Build configs
 tsconfig.json
