@@ -17,7 +17,7 @@ import {
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
 import { validateFilter, validateOrThrow, validateUpdate } from "./util/validate";
-import { SafeUpdate } from "./util/types";
+import { SafeUpdate, TypedFilter } from "./util/types";
 
 type StrictFilter<T> = {
 	[P in keyof T]?: T[P] extends object ? StrictFilter<T[P]> : T[P];
@@ -90,9 +90,9 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		/**
 		 * Finds a single document matching the filter.
 		 */
-		findOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
+		findOne(filter: TypedFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
 			validateFilter(filter, schema);
-			return collection.findOne(filter, options);
+			return collection.findOne(filter as Filter<TypeOf<TSchema>>, options);
 		},
 
 		/**

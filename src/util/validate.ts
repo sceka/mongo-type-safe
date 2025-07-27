@@ -1,5 +1,5 @@
-import { TypeOf, ZodError, ZodObject, ZodRawShape, ZodSchema } from "zod";
-import { createFilterSchema, formatZodErrors } from "./helper";
+import { object, TypeOf, ZodError, ZodObject, ZodRawShape, ZodSchema } from "zod";
+import { createFilterSchema, formatZodErrors, isAllowedOperator } from "./helper";
 import { SafeUpdate } from "./types";
 
 export function validateOrThrow<T>(schema: ZodSchema<T>, data: unknown): T {
@@ -15,7 +15,29 @@ export function validateOrThrow<T>(schema: ZodSchema<T>, data: unknown): T {
 	}
 }
 
+export function validateFilterOperators(filter: any): void {
+	if (!filter || typeof filter !== "object") return;
+
+	for (const key in filter) {
+		if (key.startsWith("$")) {
+			if (!isAllowedOperator(key)) {
+				throw new Error(`Invalid filter operator: ${key}`);
+			}
+		}
+
+		const value = filter[key];
+
+		if (typeof value === "object" && value !== null) {
+			return validateFilterOperators(value);
+		}
+	}
+}
+
 export function validateFilter<T extends ZodObject<ZodRawShape>>(filter: any, schema: T) {
+	if (!filter || typeof filter !== "object") return;
+
+	validateFilterOperators(filter);
+
 	const filterSchema = createFilterSchema(schema);
 	const parsed = filterSchema.safeParse(filter);
 	if (!parsed.success) {

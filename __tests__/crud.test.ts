@@ -2,6 +2,7 @@ import { MongoClient } from "mongodb";
 import z from "zod";
 import { createSafeCollection } from "../src/index";
 import { ZodError } from "zod/v4";
+import { createFilterSchema } from "../src/util/helper";
 
 const userSchema = z.object({
 	name: z.string(),
@@ -90,13 +91,17 @@ test("find returns multiple matching documents", async () => {
 	expect(result[0]).toHaveProperty("age");
 });
 
-test("findOne rejects filter with invalid field", async () => {
-	try {
-		users.findOne({ unknownField: "something" } as any);
-	} catch (err: any) {
-		expect(err).toBeInstanceOf(Error);
-		expect(err.message).toMatch(/Error at field/);
-	}
+test("filter schema rejects unknown fields", () => {
+	const userSchema = z.object({
+		name: z.string(),
+		age: z.number()
+	});
+
+	const filterSchema = createFilterSchema(userSchema);
+
+	expect(() => filterSchema.parse({ unknownField: "something" })).toThrow(
+		/Unrecognized key\(s\) in object/
+	);
 });
 
 test("find rejects filter with invalid field", async () => {
