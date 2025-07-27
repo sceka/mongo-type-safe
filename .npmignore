@@ -17,3 +17,5 @@ dist/**/*.map
 .npmignore
 .gitignore
 .vscode/
+
+src/example.ts

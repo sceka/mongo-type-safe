@@ -16,7 +16,8 @@ import {
 } from "mongodb";
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
-import { validateFilter, validateOrThrow } from "./util/validate";
+import { validateFilter, validateOrThrow, validateUpdate } from "./util/validate";
+import { SafeUpdate } from "./util/types";
 
 type StrictFilter<T> = {
 	[P in keyof T]?: T[P] extends object ? StrictFilter<T[P]> : T[P];
@@ -48,10 +49,12 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 */
 		updateOne(
 			filter: StrictFilter<TypeOf<TSchema>>,
-			update: UpdateFilter<TypeOf<TSchema>>,
+			update: SafeUpdate<TypeOf<TSchema>>,
 			options?: UpdateOptions
 		) {
 			validateFilter(filter, schema);
+			validateUpdate(update, schema);
+
 			return collection.updateOne(filter, update, options);
 		},
 
@@ -60,10 +63,12 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 */
 		findOneAndUpdate(
 			filter: StrictFilter<TypeOf<TSchema>>,
-			update: UpdateFilter<TypeOf<TSchema>>,
+			update: SafeUpdate<TypeOf<TSchema>>,
 			options?: FindOneAndUpdateOptions
 		) {
 			validateFilter(filter, schema);
+			validateUpdate(update, schema);
+
 			return options
 				? collection.findOneAndUpdate(filter, update, options)
 				: collection.findOneAndUpdate(filter, update);
@@ -74,10 +79,11 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 */
 		updateMany(
 			filter: StrictFilter<TypeOf<TSchema>>,
-			update: UpdateFilter<TypeOf<TSchema>>,
+			update: SafeUpdate<TypeOf<TSchema>>,
 			options?: UpdateOptions
 		) {
 			validateFilter(filter, schema);
+			validateUpdate(update, schema);
 			return collection.updateMany(filter, update, options);
 		},
 
