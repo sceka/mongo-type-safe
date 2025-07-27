@@ -171,7 +171,6 @@ See the source for full method signatures and JSDoc documentation.
 
 -   All filters, updates, and documents are checked at compile time against your Zod schema.
 -   Invalid field names or types will cause TypeScript errors before you run your code.
--   No runtime validation is performed—this is pure TypeScript safety.
 
 ---
 
