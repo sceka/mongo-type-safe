@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import z from "zod";
 import { createSafeCollection } from "../src/index";
 import { ZodError } from "zod/v4";
@@ -15,12 +15,13 @@ jest.setTimeout(15000);
 
 let client: MongoClient;
 let users: ReturnType<typeof createSafeCollection<typeof userSchema>>;
+let rawCollection: Collection<User>;
 
 beforeAll(async () => {
 	client = new MongoClient("mongodb://localhost:27017");
 	await client.connect();
 	const db = client.db("test-db");
-	const rawCollection = db.collection<User>("users");
+	rawCollection = db.collection<User>("users");
 	users = createSafeCollection(rawCollection, userSchema);
 	await rawCollection.deleteMany({});
 });
@@ -168,4 +169,102 @@ test("findOneAndReplace replaces document with valid document", async () => {
 		{ returnDocument: "after" }
 	);
 	expect(res?.name).toBe("ReplacedAgain");
+});
+
+describe("strict = false (runtime validation disabled)", () => {
+	let usersNotStrict: ReturnType<typeof createSafeCollection<typeof userSchema>>;
+
+	beforeAll(() => {
+		usersNotStrict = createSafeCollection(rawCollection, userSchema, { strict: false });
+	});
+
+	test("insertOne allows invalid document", async () => {
+		const invalidDoc = { name: 12345 as any, age: "invalid" as any };
+		const res = await usersNotStrict.insertOne(invalidDoc);
+		expect(res).toBeDefined();
+	});
+
+	test("insertMany inserts many invalid documents", async () => {
+		const docs = [
+			{ name: 27 as any, age: "invalid" as any },
+			{ name: 28 as any, age: "invalid" as any }
+		];
+
+		const result = await usersNotStrict.insertMany(docs);
+		expect(result.insertedCount).toBe(2);
+
+		const insertedDocs = await usersNotStrict.find({}).toArray();
+		const names = insertedDocs.map(d => d.name);
+		expect(names).toEqual(expect.arrayContaining([27, 28]));
+	});
+
+	test("updateOne allows invalid document", async () => {
+		const res = await usersNotStrict.updateOne(
+			{ name: "any" },
+			{ $set: { age: "123" as any } }
+		);
+
+		expect(res).toBeDefined();
+	});
+
+	test("updateMany modifies multiple invalid documents", async () => {
+		await usersNotStrict.insertMany([
+			{ name: "UpdateTest1", age: 20 },
+			{ name: "UpdateTest2", age: 25 }
+		]);
+
+		const res = await usersNotStrict.updateMany(
+			{ age: { $gte: 20 } },
+			{ $set: { age: "Hello" as any } }
+		);
+
+		expect(res.modifiedCount).toBeGreaterThanOrEqual(1);
+
+		const updatedDocs = await usersNotStrict.find({ age: "Hello" as any }).toArray();
+		expect(updatedDocs.length).toBeGreaterThanOrEqual(2);
+	});
+
+	test("find allows invalid filter", async () => {
+		const cursor = usersNotStrict.find({ age: "invalid" as any });
+		const results = await cursor.toArray();
+		expect(Array.isArray(results)).toBe(true);
+	});
+
+	test("findOne allows invalid filter", async () => {
+		const res = await usersNotStrict.findOne({ age: "invalid" as any });
+		expect(res).toBeDefined();
+	});
+
+	test("deleteOne allows invalid filter", async () => {
+		const res = await usersNotStrict.deleteOne({ age: "invalid" as any });
+		expect(res).toBeDefined();
+	});
+
+	test("deleteMany allows invalid filter", async () => {
+		const res = await usersNotStrict.deleteMany({ age: "invalid" as any });
+		expect(res).toBeDefined();
+	});
+
+	test("replaceOne allows invalid filter and document", async () => {
+		const res = await usersNotStrict.replaceOne(
+			{ name: 123 as any },
+			{ name: 456 as any, age: "invalid" as any }
+		);
+		expect(res).toBeDefined();
+	});
+
+	test("findOneAndReplace replaces document with invalid document", async () => {
+		await usersNotStrict.insertOne({ name: "ReplaceMeAgain", age: 40 });
+
+		const res = await usersNotStrict.findOneAndReplace(
+			{ name: "ReplaceMeAgain" },
+			{ name: 21 as any, age: 41 },
+			{ returnDocument: "after" }
+		);
+
+		expect(res?.name).toBe(21);
+
+		const doc = await usersNotStrict.findOne({ name: 21 as any });
+		expect(doc?.age).toBe(41);
+	});
 });

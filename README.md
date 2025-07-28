@@ -142,6 +142,38 @@ const user = await safeUsers.findOne({ name: "Marko" });
 
 ---
 
+## Strict mode (optional)
+
+By default, `createSafeCollection` **validates all filters and update objects at runtime** using the Zod schema you provide. This helps catch bugs early and keeps your data access safe and predictable.
+
+### ✅ Default behavior (`strict: true`)
+
+Runtime validation ensures only valid filter/update structures are allowed:
+
+```typescript
+const users = createSafeCollection(collection, userSchema);
+
+await users.insertOne({ name: "Marko", age: 23 }); // ✅ OK
+
+// 👇 TypeScript would normally catch this at compile time,
+// but we use `as any` to simulate invalid data at runtime.
+await users.insertOne({ name: 23 as any, age: "Marko" as any }); // ❌ Throws: Invalid document: expected string, received number
+```
+
+NOTE: as any is used to bypass TypeScript so we can demonstrate runtime validation. Without it, TypeScript would block the error before runtime.
+
+### ✅ Disable validation (`strict: false`)
+
+```typescript
+const users = createSafeCollection(collection, userSchema, { strict: false });
+
+await users.insertOne({ name: "Marko", age: 23 }); // ✅ allowed
+
+// 👇 Still compiles because we forced the types,
+// but now no runtime validation is applied either.
+await users.insertOne({ name: 23 as any, age: "Marko" as any }); // ✅ no error thrown
+```
+
 ## API Overview
 
 All methods are type-safe and mirror the MongoDB driver:
@@ -184,3 +216,7 @@ See the source for full method signatures and JSDoc documentation.
 ## License
 
 MIT
+
+```
+
+```

@@ -20,8 +20,6 @@ export const allowedOperators = [
 	"$nor"
 ] as const;
 
-type Primitive = string | number | boolean | Date | null;
-
 type FilterOperators<T> = T extends string
 	? { $eq?: T; $ne?: T; $in?: T[]; $nin?: T[]; $regex?: RegExp }
 	: T extends number
@@ -39,4 +37,8 @@ export type TypedFilter<T> = { [K in keyof T]?: T[K] | FilterOperators<T[K]> } &
 	$or?: TypedFilter<T>[];
 	$and?: TypedFilter<T>[];
 	$not?: TypedFilter<T>;
+};
+
+export type CreateSafeCollectionOptions = {
+	strict?: boolean;
 };

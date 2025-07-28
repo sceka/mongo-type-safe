@@ -17,7 +17,7 @@ import {
 import { ZodObject } from "zod";
 import type { Schema, TypeOf } from "zod";
 import { validateFilter, validateOrThrow, validateUpdate } from "./util/validate";
-import { SafeUpdate, TypedFilter } from "./util/types";
+import { CreateSafeCollectionOptions, SafeUpdate, TypedFilter } from "./util/types";
 
 type StrictFilter<T> = {
 	[P in keyof T]?: T[P] extends object ? StrictFilter<T[P]> : T[P];
@@ -25,14 +25,15 @@ type StrictFilter<T> = {
 
 export function createSafeCollection<TSchema extends ZodObject<any>>(
 	collection: Collection<TypeOf<TSchema>>,
-	schema: TSchema
+	schema: TSchema,
+	{ strict = true }: CreateSafeCollectionOptions = {}
 ) {
 	return {
 		/**
 		 * Inserts a single document into the collection.
 		 */
 		insertOne(doc: OptionalUnlessRequiredId<TypeOf<TSchema>>, options?: InsertOneOptions) {
-			validateOrThrow(schema, doc);
+			if (strict) validateOrThrow(schema, doc);
 			return collection.insertOne(doc, options);
 		},
 
@@ -40,7 +41,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Inserts multiple documents into the collection.
 		 */
 		insertMany(docs: OptionalUnlessRequiredId<TypeOf<TSchema>>[]) {
-			docs.forEach(doc => validateOrThrow(schema, doc));
+			if (strict) docs.forEach(doc => validateOrThrow(schema, doc));
 			return collection.insertMany(docs);
 		},
 
@@ -48,50 +49,56 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Updates a single document matching the filter.
 		 */
 		updateOne(
-			filter: StrictFilter<TypeOf<TSchema>>,
+			filter: TypedFilter<TypeOf<TSchema>>,
 			update: SafeUpdate<TypeOf<TSchema>>,
 			options?: UpdateOptions
 		) {
-			validateFilter(filter, schema);
-			validateUpdate(update, schema);
+			if (strict) {
+				validateFilter(filter, schema);
+				validateUpdate(update, schema);
+			}
 
-			return collection.updateOne(filter, update, options);
+			return collection.updateOne(filter as Filter<TypeOf<TSchema>>, update, options);
 		},
 
 		/**
 		 * Updates a single document matching the filter and returns it (before or after update).
 		 */
 		findOneAndUpdate(
-			filter: StrictFilter<TypeOf<TSchema>>,
+			filter: TypedFilter<TypeOf<TSchema>>,
 			update: SafeUpdate<TypeOf<TSchema>>,
 			options?: FindOneAndUpdateOptions
 		) {
-			validateFilter(filter, schema);
-			validateUpdate(update, schema);
+			if (strict) {
+				validateFilter(filter, schema);
+				validateUpdate(update, schema);
+			}
 
 			return options
-				? collection.findOneAndUpdate(filter, update, options)
-				: collection.findOneAndUpdate(filter, update);
+				? collection.findOneAndUpdate(filter as Filter<TypeOf<TSchema>>, update, options)
+				: collection.findOneAndUpdate(filter as Filter<TypeOf<TSchema>>, update);
 		},
 
 		/**
 		 * Updates multiple documents matching the filter.
 		 */
 		updateMany(
-			filter: StrictFilter<TypeOf<TSchema>>,
+			filter: TypedFilter<TypeOf<TSchema>>,
 			update: SafeUpdate<TypeOf<TSchema>>,
 			options?: UpdateOptions
 		) {
-			validateFilter(filter, schema);
-			validateUpdate(update, schema);
-			return collection.updateMany(filter, update, options);
+			if (strict) {
+				validateFilter(filter, schema);
+				validateUpdate(update, schema);
+			}
+			return collection.updateMany(filter as Filter<TypeOf<TSchema>>, update, options);
 		},
 
 		/**
 		 * Finds a single document matching the filter.
 		 */
 		findOne(filter: TypedFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
-			validateFilter(filter, schema);
+			if (strict) validateFilter(filter, schema);
 			return collection.findOne(filter as Filter<TypeOf<TSchema>>, options);
 		},
 
@@ -99,7 +106,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Finds all documents matching the filter.
 		 */
 		find(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
-			validateFilter(filter, schema);
+			if (strict) validateFilter(filter, schema);
 			return collection.find(filter, options);
 		},
 
@@ -107,7 +114,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Deletes a single document matching the filter.
 		 */
 		deleteOne(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
-			validateFilter(filter, schema);
+			if (strict) validateFilter(filter, schema);
 			return collection.deleteOne(filter, options);
 		},
 
@@ -115,7 +122,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Deletes multiple documents matching the filter.
 		 */
 		deleteMany(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOptions<TypeOf<TSchema>>) {
-			validateFilter(filter, schema);
+			if (strict) validateFilter(filter, schema);
 			return collection.deleteMany(filter, options);
 		},
 
@@ -123,7 +130,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Deletes a single document matching the filter and returns it.
 		 */
 		findOneAndDelete(filter: StrictFilter<TypeOf<TSchema>>, options?: FindOneAndDeleteOptions) {
-			validateFilter(filter, schema);
+			if (strict) validateFilter(filter, schema);
 			return options
 				? collection.findOneAndDelete(filter, options)
 				: collection.findOneAndDelete(filter);
@@ -137,8 +144,10 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			newDocument: TypeOf<TSchema>,
 			options?: ReplaceOptions
 		) {
-			validateFilter(filter, schema);
-			validateOrThrow(schema, newDocument);
+			if (strict) {
+				validateFilter(filter, schema);
+				validateOrThrow(schema, newDocument);
+			}
 			return collection.replaceOne(filter, newDocument, options);
 		},
 
@@ -150,8 +159,10 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			newDocument: TypeOf<TSchema>,
 			options?: FindOneAndReplaceOptions
 		) {
-			validateFilter(filter, schema);
-			validateOrThrow(schema, newDocument);
+			if (strict) {
+				validateFilter(filter, schema);
+				validateOrThrow(schema, newDocument);
+			}
 			return options
 				? collection.findOneAndReplace(filter, newDocument, options)
 				: collection.findOneAndReplace(filter, newDocument);
@@ -172,7 +183,7 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 		 * Counts the number of documents matching the filter.
 		 */
 		countDocuments(filter?: StrictFilter<TypeOf<TSchema>>, options?: CountDocumentsOptions) {
-			if (filter) validateFilter(filter, schema);
+			if (filter && strict) validateFilter(filter, schema);
 			return collection.countDocuments(filter, options);
 		},
 
@@ -190,11 +201,12 @@ export function createSafeCollection<TSchema extends ZodObject<any>>(
 			key: Key,
 			filter?: StrictFilter<TypeOf<TSchema>>
 		) {
+			if (filter && strict) validateFilter(filter, schema);
+
 			if (!(key in schema.shape)) {
 				throw new Error(`Invalid field: ${String(key)}`);
 			}
 
-			if (filter) validateFilter(filter, schema);
 			return filter
 				? collection.distinct(key as string, filter)
 				: collection.distinct(key as string);
