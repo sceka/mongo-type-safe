@@ -42,3 +42,19 @@ export type TypedFilter<T> = { [K in keyof T]?: T[K] | FilterOperators<T[K]> } &
 export type CreateSafeCollectionOptions = {
 	strict?: boolean;
 };
+
+export type StageName = "$match" | "$group" | "$sort" | "$limit" | "$project" | "$skip";
+
+type GroupAccumulator =
+	| { $sum: number | string }
+	| { $avg: string }
+	| { $min: string }
+	| { $max: string }
+	| { $push: string }
+	| { $addToSet: string }
+	| { $first: string }
+	| { $last: string };
+
+export type GroupStage<T> = {
+	_id: keyof T | null | object;
+} & { [key: string]: GroupAccumulator };
